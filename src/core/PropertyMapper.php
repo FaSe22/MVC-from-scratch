@@ -1,6 +1,6 @@
 <?php
 
-namespace app\src\services;
+namespace app\src\core;
 
 class PropertyMapper
 {

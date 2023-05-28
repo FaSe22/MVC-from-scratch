@@ -2,6 +2,8 @@
 
 namespace app\src\models;
 
+use app\src\core\Model;
+
 class Todo extends Model {
 
     public string $title ;

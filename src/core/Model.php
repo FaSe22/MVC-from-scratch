@@ -1,12 +1,12 @@
 <?php
 
-namespace app\src\models;
+namespace app\src\core;
 
-use app\src\repositories\BaseRepository;
-use app\src\services\PropertyMapper;
+use app\src\core\traits\Instantiable;
 
 abstract class Model
 {
+    use Instantiable;
 
     public ?int $id;
 
@@ -25,31 +25,13 @@ abstract class Model
 
 
     /**
-     * @param bool|array $entry
-     * @param $fn
-     * @param null $instance
-     * @return Model
-     */
-    public static function getInstance(bool|array &$entry, $fn, $instance = null): Model
-    {
-        if (!$instance) {
-            $instance = new (get_called_class());
-        }
-
-        $properties = get_class_vars(get_class($instance));
-        PropertyMapper::$fn($properties, $entry, $instance);
-
-        return $instance;
-
-    }
-
-    /**
      * @return $this
      */
     public function save(): Model
     {
         $args = [];
         $instance = static::getInstance($args, "mapPropertiesToColumns", $this);
+        //Wir nehmen die neue Id und schreiben sie in die Instanz
         $instance->id = BaseRepository::create($this, $args);
 
         return $instance;
@@ -77,31 +59,6 @@ abstract class Model
         return array_map(fn($entry) =>  static::getInstance($entry, "mapColumnsToProperties"), $entries);
     }
 
-    /**
-     * @param bool|array $entries
-     * @return void
-     */
-    public static function format(bool|array $entries): void
-    {
-        // die daten kommen so ["id" => 1 [0] => 1 "title" => "test" [1] => "test"],
-        // entferne alle numerischen keys aus den ergebnissen
-        // und wir erhalten ["id" => 1, "title" => "test"]
-        array_map(function ($key) use ($entries) {
-            if (is_numeric($key)) {
-                unset($entries[0][$key]);
-            }
-        }, array_keys($entries[0]));
-    }
-
-
-    /**
-     * @return string
-     */
-    public static function getTableName(): string
-    {
-        $string = str_replace('\\', '/', get_called_class());
-        return (strtolower(basename($string)) . "s");
-    }
 
     /**
      * @param int $id
@@ -117,4 +74,14 @@ abstract class Model
             return null;
         }
     }
+
+    /**
+     * @return string
+     */
+    public static function getTableName(): string
+    {
+        $string = str_replace('\\', '/', get_called_class());
+        return (strtolower(basename($string)) . "s");
+    }
+
 }

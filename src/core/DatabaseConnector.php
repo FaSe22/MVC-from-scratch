@@ -1,10 +1,12 @@
 <?php
 
-namespace app\src\services;
+namespace app\src\core;
+
+use PDO;
 
 class DatabaseConnector
 {
-    public static function getPDO(): \PDO
+    public static function getPDO(): PDO
     {
         $conf = include('./config/database.php');
 
@@ -15,6 +17,6 @@ class DatabaseConnector
             ";charset=" . $sql['charset'] .
             ";port=" . $sql['port'];
 
-        return new \PDO($dsn, "root", "");
+        return new PDO($dsn, "root", "");
     }
 }
