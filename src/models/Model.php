@@ -72,7 +72,7 @@ abstract class Model
     public static function get(): array
     {
         $entries = BaseRepository::get(static::getTableName());
-        self::format($entries);
+        static::format($entries);
 
         return array_map(fn($entry) =>  static::getInstance($entry, "mapColumnsToProperties"), $entries);
     }
@@ -105,9 +105,9 @@ abstract class Model
 
     /**
      * @param int $id
-     * @return mixed
+     * @return Model|null
      */
-    public static function find(int $id): mixed
+    public static function find(int $id): ?Model
     {
         $entry = BaseRepository::find(static::getTableName(), $id);
 
@@ -116,7 +116,5 @@ abstract class Model
         } else {
             return null;
         }
-
     }
-
 }
