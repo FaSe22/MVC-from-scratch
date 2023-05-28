@@ -11,7 +11,7 @@ class View {
      * @param $arguments
      * @return bool|string
      */
-    public static function render ($name, $arguments = []): bool|string
+    public static function render($name, $arguments = []): bool|string
     {
         ob_start();
         if(is_array($arguments)){
