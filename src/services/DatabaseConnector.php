@@ -6,7 +6,7 @@ class DatabaseConnector
 {
 
 
-    public function getPDO()
+    public static function getPDO(): \PDO
     {
         $conf = include('./config/database.php');
 
