@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__."/vendor/autoload.php";
 
+use app\src\controllers\HomeController;
 use app\src\controllers\TodoController;
 use app\src\core\Application;
 
@@ -22,6 +23,7 @@ use app\src\core\Application;
 $app = new Application();
 
 $app->router->get('/todos', [TodoController::class, "getTodos"]);
+$app->router->get('/', [HomeController::class, "greet"]);
 
 echo($app->router->resolve());
 
