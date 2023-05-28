@@ -3,91 +3,96 @@
 namespace app\src\models;
 
 use app\src\repositories\BaseRepository;
+use app\src\services\PropertyMapper;
 
 abstract class Model
 {
 
-    public int $id;
+    public ?int $id;
 
-    public function save(): static
+    /**
+     * @param $args
+     * @return mixed
+     */
+    public static function create($args): Model
     {
-        $properties = get_class_vars(get_class($this));
-        //Erstellung der Args for die create Methode
-        $args = [];
-        foreach (array_keys($properties) as $property) {
-            if ($property == "id") continue;
-            $args[$property] = $this->$property;
-        }
+        $instance = static::getInstance($args, "mapColumnsToProperties");
         //Wir nehmen die neue Id und schreiben sie in die Instanz
-        $id = BaseRepository::create($this, $args);
-        $this->id = $id;
-        return $this;
+        $instance->id = BaseRepository::create($instance, $args);
+
+        return $instance;
     }
 
-    public function delete(): void
+
+    /**
+     * @param bool|array $entry
+     * @param $fn
+     * @param null $instance
+     * @return Model
+     */
+    public static function getInstance(bool|array &$entry, $fn, $instance = null): Model
+    {
+        if (!$instance) {
+            $instance = new (get_called_class());
+        }
+
+        $properties = get_class_vars(get_class($instance));
+        PropertyMapper::$fn($properties, $entry, $instance);
+
+        return $instance;
+
+    }
+
+    /**
+     * @return $this
+     */
+    public function save(): Model
+    {
+        $args = [];
+        $instance = static::getInstance($args, "mapPropertiesToColumns", $this);
+        $instance->id = BaseRepository::create($this, $args);
+
+        return $instance;
+    }
+
+    /**
+     * @return bool
+     */
+    public function delete(): bool
     {
         BaseRepository::delete($this);
+        return true;
+
     }
 
-    public static function create($args)
-    {
-        // Erstellung einer neuen Instanz
-        $instance = (new (get_called_class()));
-        // Zuweisung der Properties
-        $properties = get_class_vars(get_class($instance));
-        foreach (array_keys($properties) as $property) {
-            if ($property == "id") continue;
-            $instance->$property = $args[$property];
-        }
-        //Wir nehmen die neue Id und schreiben sie in die Instanz
-        $id = (BaseRepository::create($instance, $args));
-        $instance->id = $id;
-        return $instance;
-    }
 
-    public static function get()
+    /**
+     * @return array
+     */
+    public static function get(): array
     {
         $entries = BaseRepository::get(static::getTableName());
-        // die daten kommen so ["id" => 1 [0] => 1 "title" => "test" [1] => "test"], entferne alle numerischen keys aus den ergebnissen
-        // und wir erhalten ["id" => 1, "title" => "test"]
-        array_map(function ($array_key) use ($entries) {
-            if (is_numeric($array_key)) unset($entries[0][$array_key]);
-        }, array_keys($entries[0]));
+        self::format($entries);
 
-        //wir erstellen für jeden eintrag eine eigene instanz
-        $instances = [];
-
-        foreach ($entries as $model) {
-            // Erstellung einer neuen Instanz
-            $instance = (new (get_called_class()));
-            // zuweisung der column werde zu den properties
-            // holen wir alle properties des models
-            $props = get_class_vars(get_class($instance));
-            foreach (array_keys($props) as $key) {
-                $instance->$key = $model[$key];
-            }
-
-            $instances[] = $instance;
-        }
-
-        return $instances;
-
-
+        return array_map(fn($entry) =>  static::getInstance($entry, "mapColumnsToProperties"), $entries);
     }
 
-    public static function find(int $id)
+    /**
+     * @param bool|array $entries
+     * @return void
+     */
+    public static function format(bool|array $entries): void
     {
-        $entry = BaseRepository::find(static::getTableName(), $id);
-
-        $instance = (new (get_called_class()));
-        $props = get_class_vars(get_class($instance));
-        foreach (array_keys($props) as $key) {
-            $instance->$key = $entry[0][$key];
-        }
-
-        return $instance;
-
+        // die daten kommen so ["id" => 1 [0] => 1 "title" => "test" [1] => "test"],
+        // entferne alle numerischen keys aus den ergebnissen
+        // und wir erhalten ["id" => 1, "title" => "test"]
+        array_map(function ($key) use ($entries) {
+            if (is_numeric($key)) {
+                unset($entries[0][$key]);
+            }
+        }, array_keys($entries[0]));
     }
+
 
     /**
      * @return string
@@ -98,5 +103,20 @@ abstract class Model
         return (strtolower(basename($string)) . "s");
     }
 
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public static function find(int $id): mixed
+    {
+        $entry = BaseRepository::find(static::getTableName(), $id);
+
+        if (!empty($entry)) {
+            return static::getInstance($entry, "mapColumnsToProperties");
+        } else {
+            return null;
+        }
+
+    }
 
 }

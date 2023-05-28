@@ -9,6 +9,11 @@ class BaseRepository
 {
 
 
+    /**
+     * @param Model $model
+     * @param $args
+     * @return mixed Id des erstellten Models
+     */
     public static function create(Model $model, $args)
     {
         $PDO = DatabaseConnector::getPDO();
@@ -39,7 +44,7 @@ class BaseRepository
     {
         $PDO = DatabaseConnector::getPDO();
         $prepared = $PDO->prepare("SELECT * from $table_name WHERE id = $id");
-        return $PDO->query($prepared->queryString)->fetchAll();
+        return $PDO->query($prepared->queryString)->fetch();
     }
 
     public static function delete(Model $model)
