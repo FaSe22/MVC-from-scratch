@@ -22,6 +22,7 @@ use app\src\core\Application;
 
 $app = new Application();
 
+$app->router->get('/todo/?id', [TodoController::class, "getTodo"]);
 $app->router->get('/todos', [TodoController::class, "getTodos"]);
 $app->router->get('/', [HomeController::class, "greet"]);
 

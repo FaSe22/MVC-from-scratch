@@ -10,6 +10,12 @@ class TodoController extends Controller
 {
     public static function getTodos()
     {
-        return  View::render("todos", ["todos" => Todo::get()]);
-}
+        return View::render("todos", ["todos" => Todo::get()]);
+    }
+
+    public static function getTodo( $id)
+    {
+        return View::render("todo", ["todo" => Todo::find($id)]);
+    }
+
 }
