@@ -1,7 +1,8 @@
 <?php
 
-namespace app\src\core;
+namespace app\src\core\orm;
 
+use app\src\core\Model;
 use PDO;
 use PDOStatement;
 

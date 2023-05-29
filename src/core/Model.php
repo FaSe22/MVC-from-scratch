@@ -2,7 +2,8 @@
 
 namespace app\src\core;
 
-use app\src\core\traits\Instantiable;
+use app\src\core\orm\BaseRepository;
+use app\src\core\orm\traits\Instantiable;
 
 abstract class Model
 {

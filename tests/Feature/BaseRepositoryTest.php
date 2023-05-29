@@ -1,7 +1,7 @@
 <?php
 
-use app\src\core\BaseRepository;
-use app\src\core\DatabaseConnector;
+use app\src\core\orm\BaseRepository;
+use app\src\core\orm\DatabaseConnector;
 
 beforeEach(function(){
     $this->base = new BaseRepository();

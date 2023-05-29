@@ -1,9 +1,9 @@
 <?php
 
-namespace app\src\core\traits;
+namespace app\src\core\orm\traits;
 
 use app\src\core\Model;
-use app\src\core\PropertyMapper;
+use app\src\core\orm\PropertyMapper;
 
 trait Instantiable
 {
